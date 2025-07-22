@@ -44,6 +44,9 @@ def draw_pieces():
             x, y = chess.square_file(sq) * SQ, (7 - chess.square_rank(sq)) * SQ
             screen.blit(img, (x, y))
 
+piece_value = { chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
+                chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0 }
+
 def highlight():
     if selected is not None:
         col, row = chess.square_file(selected), 7 - chess.square_rank(selected)
@@ -53,9 +56,6 @@ def highlight():
         king_sq = board.king(board.turn)
         col, row = chess.square_file(king_sq), 7 - chess.square_rank(king_sq)
         pygame.draw.rect(screen, CHECK, (col * SQ, row * SQ, SQ, SQ), 4)
-
-        piece_value = { chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
-                chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0 }
 
 def evaluate(b):
     if b.is_checkmate():
