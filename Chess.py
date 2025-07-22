@@ -106,3 +106,8 @@ def ai_move():
             best_score, best_move = score, move
     if best_move:
         board.push(best_move)
+def export_pgn():
+    game = chess.pgn.Game.from_board(board)
+    with open("game.pgn", "w") as f:
+        f.write(str(game))
+    print("📄 game.pgn saved")
