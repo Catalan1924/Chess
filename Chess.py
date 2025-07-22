@@ -53,3 +53,56 @@ def highlight():
         king_sq = board.king(board.turn)
         col, row = chess.square_file(king_sq), 7 - chess.square_rank(king_sq)
         pygame.draw.rect(screen, CHECK, (col * SQ, row * SQ, SQ, SQ), 4)
+
+        piece_value = { chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
+                chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0 }
+
+def evaluate(b):
+    if b.is_checkmate():
+        return -inf if b.turn else inf
+    if b.is_stalemate() or b.is_insufficient_material():
+        return 0
+    score = 0
+    for sq in chess.SQUARES:
+        p = b.piece_at(sq)
+        if p:
+            val = piece_value[p.piece_type]
+            score += val if p.color == chess.WHITE else -val
+    return score
+
+def minimax(b, depth, alpha, beta, maximizing):
+    if depth == 0 or b.is_game_over():
+        return evaluate(b)
+    if maximizing:
+        max_eval = -inf
+        for move in b.legal_moves:
+            b.push(move)
+            val = minimax(b, depth-1, alpha, beta, False)
+            b.pop()
+            max_eval = max(max_eval, val)
+            alpha = max(alpha, val)
+            if beta <= alpha:
+                break
+        return max_eval
+    else:
+        min_eval = inf
+        for move in b.legal_moves:
+            b.push(move)
+            val = minimax(b, depth-1, alpha, beta, True)
+            b.pop()
+            min_eval = min(min_eval, val)
+            beta = min(beta, val)
+            if beta <= alpha:
+                break
+        return min_eval
+
+def ai_move():
+    best_score, best_move = -inf, None
+    for move in board.legal_moves:
+        board.push(move)
+        score = minimax(board, 3, -inf, inf, board.turn == chess.BLACK)
+        board.pop()
+        if score > best_score:
+            best_score, best_move = score, move
+    if best_move:
+        board.push(best_move)
