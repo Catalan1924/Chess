@@ -153,4 +153,17 @@ def main():
         highlight()
         draw_pieces()
 
-      
+        pygame.draw.rect(screen, (50, 50, 50), (0, HEIGHT, WIDTH, 40))
+        font = pygame.font.SysFont(None, 28)
+        msg = f"Turn: {'White' if board.turn else 'Black'}  |  AI: {'ON' if ai_enabled else 'OFF'}"
+        if board.is_checkmate():
+            msg = "Checkmate!"
+        elif board.is_stalemate():
+            msg = "Stalemate!"
+        screen.blit(font.render(msg, True, (255, 255, 255)), (10, HEIGHT + 10))
+
+        pygame.display.flip()
+
+if __name__ == "__main__":
+    os.makedirs("pieces", exist_ok=True) 
+    main()      
