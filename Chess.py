@@ -153,3 +153,4 @@ def main():
         highlight()
         draw_pieces()
 
+      
