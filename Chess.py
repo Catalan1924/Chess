@@ -111,3 +111,45 @@ def export_pgn():
     with open("game.pgn", "w") as f:
         f.write(str(game))
     print("📄 game.pgn saved")
+
+def coord_to_square(x, y):
+    file = x // SQ
+    rank = 7 - (y // SQ)
+    return chess.square(file, rank)
+
+def main():
+    global selected, ai_enabled
+    while True:
+        clock.tick(FPS)
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    pygame.quit(); sys.exit()
+                elif e.key == pygame.K_a:
+                    ai_enabled = not ai_enabled
+                    print("AI" if ai_enabled else "Human")
+                elif e.key == pygame.K_s:
+                    export_pgn()
+            elif e.type == pygame.MOUSEBUTTONDOWN:
+                x, y = pygame.mouse.get_pos()
+                if y >= HEIGHT: continue   # ignore bottom strip
+                sq = coord_to_square(x, y)
+                if selected is None:
+                    if board.piece_at(sq) and board.color_at(sq) == board.turn:
+                        selected = sq
+                else:
+                    move = chess.Move(selected, sq)
+                    if move in board.legal_moves:
+                        board.push(move)
+                        selected = None
+                        if ai_enabled and not board.is_game_over():
+                            ai_move()
+                    else:
+                        selected = None
+
+        draw_board()
+        highlight()
+        draw_pieces()
+
