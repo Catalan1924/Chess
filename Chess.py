@@ -6,7 +6,7 @@ WIDTH = HEIGHT = SQ * 8
 BAR = 80
 TOTAL_W = WIDTH + BAR
 FPS = 30
-START_TIME = 5 * 60  
+START_TIME = 6 * 60  
 PIECE_VAL = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
              chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0}
 
@@ -17,16 +17,17 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 42)
 small = pygame.font.SysFont(None, 28)
 
-WHITE_SQ = (180, 149, 96)
+
 BLACK_SQ = (119, 154, 88)
 SELECT   = (186, 202, 68)
 CHECK    = (207, 95, 95)
 TEXT     = (255, 255, 255)
 BG_BAR   = (50, 50, 50)
-WHITE_PIECE_COLOR   = (255, 255, 255)   
+WHITE_SQ   = (180, 149, 89) 
+
+WHITE = (255, 255, 255)
 
 LB_FILE = "leaderboard.json"
-
 
 def load_lb():
     return json.load(open(LB_FILE)) if os.path.exists(LB_FILE) else {}
@@ -79,7 +80,7 @@ def confirm_quit():
                 elif e.key == pygame.K_n:
                     return
 
-
+# ---------- GAME ----------
 class Game:
     def __init__(self, vs_ai):
         self.board = chess.Board()
@@ -98,7 +99,7 @@ class Game:
         old = {pt: len(chess.Board(self.last_fen).pieces(pt, c)) for pt in PIECE_VAL for c in (chess.WHITE, chess.BLACK)}
         for pt in PIECE_VAL:
             if curr[pt] < old[pt]:
-
+                # opponent captured this piece
                 captor = chess.BLACK if self.board.turn == chess.WHITE else chess.WHITE
                 self.captured[captor] += PIECE_VAL[pt] * (old[pt] - curr[pt])
         self.last_fen = self.board.fen()
@@ -116,7 +117,7 @@ class Game:
 
     def minimax(self, b, d, maximizing):
         if d == 0 or b.is_game_over():
-            return 0, None
+            return 0, None  # material handled outside
         best = None
         if maximizing:
             max_eval = float('-inf')
@@ -171,7 +172,7 @@ class Game:
                             if self.vs_ai and not self.board.is_game_over() and not self.game_over:
                                 self.ai_move()
 
-
+            # End-of-game
             if not self.game_over and self.board.is_game_over():
                 if self.board.is_checkmate():
                     winner = "Black" if self.board.turn == chess.WHITE else "White"
@@ -211,7 +212,7 @@ class Game:
             pc = self.board.piece_at(sq)
             if pc:
                 lbl = pc.symbol().upper() if pc.color else pc.symbol()
-                color = WHITE_PIECE_COLOR if pc.color else (0, 0, 0)
+                color = WHITE if pc.color else (0, 0, 0, 0)
                 img = fnt.render(lbl, True, color)
                 x, y = chess.square_file(sq) * SQ + 10, (7 - chess.square_rank(sq)) * SQ + 10
                 screen.blit(img, (x, y))
